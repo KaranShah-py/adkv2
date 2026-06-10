@@ -18,7 +18,7 @@ from ..state_keys import (
 logger = logging.getLogger(__name__)
 
 
-def generate_distribution_pdf(
+async def generate_distribution_pdf(
     tool_context: ToolContext,
     report_title: str = "Macleods Distribution Summary Report",
 ) -> PdfResponse:
@@ -125,35 +125,15 @@ def generate_distribution_pdf(
                 mime_type="application/pdf",
             )
 
-            #
-            # NOTE:
-            # save_artifact is async.
-            #
-            # Depending on ADK runtime version,
-            # synchronous tool execution may already
-            # be inside an event loop.
-            #
-            # If you hit:
-            # RuntimeError:
-            # asyncio.run() cannot be called from
-            # a running event loop
-            #
-            # switch back to async tool execution.
-            #
-
-            import asyncio
-
             for attempt in range(3):
 
                 try:
 
-                    version = asyncio.run(
-                        tool_context.save_artifact(
-                            filename=result[
-                                "report_name"
-                            ],
-                            artifact=artifact,
-                        )
+                    version = await tool_context.save_artifact(
+                        filename=result[
+                            "report_name"
+                        ],
+                        artifact=artifact,
                     )
 
                     artifact_version = str(
